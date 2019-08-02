@@ -1,0 +1,27 @@
+#数据库连接
+spring.datasource:
+  driver-class-name: org.h2.Driver
+  url: jdbc:h2:~/h2/quartz-schedule;AUTO_SERVER=TRUE
+  username: sa
+  password: .
+
+# quartz数据库持久化设置
+spring.quartz:
+  job-store-type: jdbc
+
+# 数据初始化设置
+datasource:
+  initializer:
+    #初始化执行的语句
+    creates:
+      - table-name: job_config
+        schema: create
+    #升级时执行的语句
+    updates:
+      - {table-name: job_config, column-name: cron, schema: upgrade.100}
+
+logging:
+  level:
+    root: info
+    org:
+      springframework: debug
