@@ -110,39 +110,37 @@
                 var vm = this;
                 axios.post('/jobs', vm.submitData).then(function (response) {
                     vm.getList();
-                }).catch(function (reason) {
-                    alert(reason || '操作失败')
-                    Message.error(reason || '操作失败');
+                }).catch(function (error) {
+                    vm.$message.error(error.response.data.message || '操作失败');
                 })
             },
             activateHandle: function (row) {
                 var vm = this;
                 axios.put('/jobs/' + row.id + "/activate").then(function (response) {
                     vm.getList();
-                }).catch(function (reason) {
-                    alert(reason || '操作失败')
-                    Message.error(reason || '操作失败');
+                }).catch(function (error) {
+                    vm.$message.error(error.response.data.message || '操作失败');
                 })
             },
             disableHandle: function (row) {
                 var vm = this;
                 axios.put('/jobs/' + row.id + "/disable").then(function (response) {
                     vm.getList();
-                }).finally(function () {
+                }).catch(function (error) {
+                    vm.$message.error(error.response.data.message || '操作失败');
                 })
             },
             deleteHandle: function (row) {
                 var vm = this;
                 axios.delete('/jobs/' + row.id).then(function (response) {
                     vm.getList();
-                }).catch(function (reason) {
-                    alert(reason || '操作失败')
-                    Message.error(reason || '操作失败');
+                }).catch(function (error) {
+                    vm.$message.error(error.response.data.message || '操作失败');
                 })
             }
         },
         created: function () {
-            this.getList()
+            this.getList();
         }
     })
 </script>
