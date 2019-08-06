@@ -7,8 +7,6 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.data.jdbc.repository.config.EnableJdbcRepositories;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-import java.io.IOException;
-
 /**
  * 程序入口
  *
@@ -22,8 +20,10 @@ public class Application {
         ConfigurableApplicationContext context = SpringApplication.run(Application.class);
         String port = context.getEnvironment().getProperty("local.server.port");
         try {
-            Runtime.getRuntime().exec("cmd /c start http://localhost:" + port);
-        } catch (IOException e) {
+            Process exec = Runtime.getRuntime().exec("cmd /c start http://localhost:" + port);
+            Thread.sleep(10000);
+            exec.destroy();
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
