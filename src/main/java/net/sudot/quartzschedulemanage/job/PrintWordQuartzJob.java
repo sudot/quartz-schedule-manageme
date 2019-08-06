@@ -1,18 +1,18 @@
 package net.sudot.quartzschedulemanage.job;
 
 import lombok.extern.slf4j.Slf4j;
+import net.sudot.quartzschedulemanage.config.annotation.JobDefinition;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-import org.springframework.stereotype.Component;
 
 /**
  * 打印
  *
  * @author tangjialin on 2019-08-01.
  */
-@Component
 @Slf4j
+@JobDefinition(cron = "0/5 * * * * ?", description = "打印Word")
 public class PrintWordQuartzJob implements Job {
     private static int COUNT = 0;
     private int count = 0;
