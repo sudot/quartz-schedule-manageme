@@ -1,7 +1,7 @@
 package net.sudot.quartzschedulemanage.config;
 
 import net.sudot.quartzschedulemanage.config.annotation.JobDefinition;
-import org.quartz.CronScheduleBuilder;
+import net.sudot.quartzschedulemanage.service.QuartzScheduleManageService;
 import org.quartz.CronTrigger;
 import org.quartz.Job;
 import org.quartz.JobBuilder;
@@ -13,7 +13,6 @@ import org.quartz.TriggerKey;
 import org.reflections.Reflections;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.util.Assert;
 
 import javax.annotation.Resource;
 import java.util.HashMap;
@@ -26,9 +25,12 @@ import java.util.Set;
  * @author tangjialin on 2019-08-02.
  */
 @Configuration
-public class QuartzScheduleService implements InitializingBean {
+public class QuartzScheduleInitializing implements InitializingBean {
     @Resource
     private Scheduler scheduler;
+    @Resource
+    private QuartzScheduleManageService quartzScheduleManageService;
+
     private Map<String, Class<? extends Job>> jobClassNameMap = new HashMap<>();
 
     @Override
@@ -39,8 +41,8 @@ public class QuartzScheduleService implements InitializingBean {
             jobClassNameMap.put(jobClass.getName(), jobClass);
             JobDefinition jobDefinition = jobClass.getDeclaredAnnotation(JobDefinition.class);
             try {
-                JobKey jobKey = buildJobKey(jobClass);
-                TriggerKey triggerKey = buildTriggerKey(jobKey);
+                JobKey jobKey = quartzScheduleManageService.buildJobKey(jobClass.getName());
+                TriggerKey triggerKey = quartzScheduleManageService.buildTriggerKey(jobKey);
                 CronTrigger trigger = (CronTrigger) scheduler.getTrigger(triggerKey);
                 if (trigger == null) {
                     JobDetail jobDetail = scheduler.getJobDetail(jobKey);
@@ -54,7 +56,7 @@ public class QuartzScheduleService implements InitializingBean {
                     trigger = TriggerBuilder.newTrigger()
                             .forJob(jobDetail)
                             .withIdentity(triggerKey)
-                            .withSchedule(buildCronExpression(jobDefinition.cron()))
+                            .withSchedule(quartzScheduleManageService.buildCronExpression(jobDefinition.cron()))
                             .withDescription(jobDefinition.description())
                             .build();
                     scheduler.scheduleJob(jobDetail, trigger);
@@ -62,32 +64,6 @@ public class QuartzScheduleService implements InitializingBean {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        }
-    }
-
-    public JobKey buildJobKey(String className) {
-        Class<? extends Job> jobClass = jobClassNameMap.get(className);
-        Assert.notNull(jobClass, "未找到[" + className + "]对应的任务");
-        return buildJobKey(jobClass);
-    }
-
-    public JobKey buildJobKey(Class<? extends Job> jobClass) {
-        return JobKey.jobKey(jobClass.getName());
-    }
-
-    public TriggerKey buildTriggerKey(JobKey jobKey) {
-        return TriggerKey.triggerKey(jobKey.getName(), jobKey.getGroup());
-    }
-
-    public CronScheduleBuilder buildCronExpression(String cronExpression) {
-        return CronScheduleBuilder.cronSchedule(cronExpression);
-    }
-
-    public CronScheduleBuilder checkAndBuildCronExpression(String cronExpression) {
-        try {
-            return buildCronExpression(cronExpression);
-        } catch (Exception e) {
-            throw new IllegalArgumentException("cron表达式错误:[" + cronExpression + "]");
         }
     }
 }

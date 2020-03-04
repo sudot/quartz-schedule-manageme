@@ -6,6 +6,9 @@
 
 #以下是排除忽略的文件,即:加入版本控制的文件
 !src
+!gradle
 !build.gradle
+!gradlew
+!gradlew.bat
 !settings.gradle
 !/*.gitignore
